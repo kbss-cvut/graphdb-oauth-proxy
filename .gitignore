@@ -1,0 +1,6 @@
+.idea
+*.iml
+target
+repositories
+**/generated-sources
+**/java-generated

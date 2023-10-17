@@ -1,0 +1,5 @@
+ontographer:
+    graphdb:
+        url: http://localhost:7200/repositories/ontographer
+        username:
+        password:
