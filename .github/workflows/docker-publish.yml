@@ -4,6 +4,7 @@ on:
         branches: [ main ]
     workflow_dispatch:
 env:
+    REGISTRY: ghcr.io
     IMAGE_NAME: graphdb-oauth-proxy
 jobs:
     build:
@@ -17,13 +18,13 @@ jobs:
             - name: Log into registry
               uses: docker/login-action@v3
               with:
-                registry: ghcr.io
+                registry: $REGISTRY
                 username: ${{ github.actor }}
                 password: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Push image
               run: |
-                  IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/$IMAGE_NAME
+                  IMAGE_ID=$REGISTRY/${{ github.repository }}/$IMAGE_NAME
                   # Change all uppercase to lowercase
                   IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
                   # Strip git ref prefix from version
