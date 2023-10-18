@@ -4,7 +4,7 @@ spring:
             resourceserver:
                 jwt:
                     issuer-uri: http://localhost:8088/realms/termit
-ontographer:
+proxy:
     graphdb:
         url: http://localhost:7200
         username: ontographer

@@ -15,6 +15,17 @@ This project proxies the GraphDB API in the following way:
    authentication using the configured credentials. This way, GraphDB can use its internal user database and Java
    applications using RDF4J API can connect to it.
 
+## Configuration
+
+The following environment variables should be used to configure the application.
+
+| Parameter                                             | Description                                                                                                   |
+|:------------------------------------------------------|:--------------------------------------------------------------------------------------------------------------|
+| `PROXY_GRAPHDB_URL`                                   | URL of the GraphDB server. Without specifying any particular repository (that is taken from the request URL). |
+| `PROXY_GRAPHDB_USERNAME`                              | Username to authenticate GraphDB access with.                                                                 |
+| `PROXY_GRAPHDB_PASSWORD`                              | Password to authenticate GraphDB access with.                                                                 |
+| `SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUERURI` | URL of the OAuth token issuer.                                                                                |
+
 ## License
 
 MIT

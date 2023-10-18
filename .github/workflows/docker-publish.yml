@@ -1,4 +1,4 @@
-name: Build docker
+name: Publish Docker image
 on:
     push:
         branches: [ main ]
