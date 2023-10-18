@@ -1,5 +1,15 @@
+spring:
+    security:
+        oauth2:
+            resourceserver:
+                jwt:
+                    issuer-uri: http://localhost:8088/realms/termit
 ontographer:
     graphdb:
-        url: http://localhost:7200/repositories/ontographer
-        username:
-        password:
+        url: http://localhost:7200
+        username: ontographer
+        password: a
+server:
+    port: 8081
+    servlet:
+        context-path: /gdb-proxy
