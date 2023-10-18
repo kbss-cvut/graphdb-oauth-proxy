@@ -58,6 +58,7 @@
     </dependencies>
 
     <build>
+        <finalName>graphdb-oauth-proxy</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
