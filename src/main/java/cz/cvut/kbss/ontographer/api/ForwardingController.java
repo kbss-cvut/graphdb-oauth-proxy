@@ -16,6 +16,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
+import java.util.Collections;
 import java.util.Enumeration;
 
 /**
@@ -59,11 +60,14 @@ public class ForwardingController {
             final ResponseEntity<String> resp = client.exchange(uri, method, httpEntity, String.class);
             final HttpHeaders respHeaders = new HttpHeaders();
             respHeaders.addAll(resp.getHeaders());
-            // Spring for some reason adds Transfer-Encoding header: chunked even though it is already present in the response
-            // This causes errors in nginx, which checks for duplicate headers
-            // So we remove the original Transfer-Encoding header so that there is only one in the end
-            // See https://github.com/spring-projects/spring-framework/issues/21523 and https://github.com/spring-projects/spring-boot/issues/37646
-            respHeaders.set(HttpHeaders.TRANSFER_ENCODING, null);
+            if (respHeaders.containsKey(HttpHeaders.TRANSFER_ENCODING)
+                    && Collections.singletonList("chunked").equals(respHeaders.get(HttpHeaders.TRANSFER_ENCODING))) {
+                // Spring for some reason adds Transfer-Encoding: chunked header even though it is already present in the response
+                // This causes errors in nginx, which checks for duplicate headers
+                // So we remove the original Transfer-Encoding header so that there is only one in the end
+                // See https://github.com/spring-projects/spring-framework/issues/21523 and https://github.com/spring-projects/spring-boot/issues/37646
+                respHeaders.set(HttpHeaders.TRANSFER_ENCODING, null);
+            }
             return ResponseEntity.status(resp.getStatusCode())
                                  .headers(respHeaders)
                                  .body(resp.getBody());
