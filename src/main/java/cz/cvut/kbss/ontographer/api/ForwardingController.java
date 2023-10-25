@@ -42,7 +42,7 @@ public class ForwardingController {
 
         URI uri = URI.create(config.url());
         uri = UriComponentsBuilder.fromUri(uri)
-                .path(requestUri.substring(contextPath.length()))
+                                  .path(requestUri.substring(contextPath.length()))
                                   .query(request.getQueryString())
                                   .build(true).toUri();
 
@@ -56,7 +56,17 @@ public class ForwardingController {
 
         final HttpEntity<String> httpEntity = new HttpEntity<>(body, headers);
         try {
-            return client.exchange(uri, method, httpEntity, String.class);
+            final ResponseEntity<String> resp = client.exchange(uri, method, httpEntity, String.class);
+            final HttpHeaders respHeaders = new HttpHeaders();
+            respHeaders.addAll(resp.getHeaders());
+            // Spring for some reason adds Transfer-Encoding header: chunked even though it is already present in the response
+            // This causes errors in nginx, which checks for duplicate headers
+            // So we remove the original Transfer-Encoding header so that there is only one in the end
+            // See https://github.com/spring-projects/spring-framework/issues/21523 and https://github.com/spring-projects/spring-boot/issues/37646
+            respHeaders.set(HttpHeaders.TRANSFER_ENCODING, null);
+            return ResponseEntity.status(resp.getStatusCode())
+                                 .headers(respHeaders)
+                                 .body(resp.getBody());
         } catch (HttpStatusCodeException e) {
             return ResponseEntity.status(e.getStatusCode())
                                  .headers(e.getResponseHeaders())
