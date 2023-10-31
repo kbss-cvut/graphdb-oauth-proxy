@@ -67,7 +67,7 @@ public class ForwardingController {
     private HttpHeaders processResponseHeaders(String requestUri, HttpHeaders respHeaders) {
         final HttpHeaders result = new HttpHeaders();
         result.addAll(respHeaders);
-        removeDuplicatedTransferEncodingHeader(respHeaders);
+        removeDuplicatedTransferEncodingHeader(result);
         rewriteLocationHeaderToThisProxy(requestUri, result);
         return result;
     }
