@@ -55,10 +55,24 @@ public class ForwardingController {
         }
         headers.setBasicAuth(config.username(), config.password());
 
+        // TODO It would be better to rewrite it to directly using a HTTP client
         final HttpEntity<String> httpEntity = new HttpEntity<>(body, headers);
         final ResponseEntity<Resource> resp = client.exchange(uri, method, httpEntity, Resource.class);
-        final HttpHeaders respHeaders = new HttpHeaders();
-        respHeaders.addAll(resp.getHeaders());
+        final HttpHeaders respHeaders = processResponseHeaders(request.getRequestURL().toString(), resp.getHeaders());
+        return ResponseEntity.status(resp.getStatusCode())
+                             .headers(respHeaders)
+                             .body(resp.getBody());
+    }
+
+    private HttpHeaders processResponseHeaders(String requestUri, HttpHeaders respHeaders) {
+        final HttpHeaders result = new HttpHeaders();
+        result.addAll(respHeaders);
+        removeDuplicatedTransferEncodingHeader(respHeaders);
+        rewriteLocationHeaderToThisProxy(requestUri, result);
+        return result;
+    }
+
+    private void removeDuplicatedTransferEncodingHeader(HttpHeaders respHeaders) {
         if (respHeaders.containsKey(HttpHeaders.TRANSFER_ENCODING)
                 && Collections.singletonList("chunked").equals(respHeaders.get(HttpHeaders.TRANSFER_ENCODING))) {
             // Spring for some reason adds Transfer-Encoding: chunked header even though it is already present in the response
@@ -67,8 +81,14 @@ public class ForwardingController {
             // See https://github.com/spring-projects/spring-framework/issues/21523 and https://github.com/spring-projects/spring-boot/issues/37646
             respHeaders.set(HttpHeaders.TRANSFER_ENCODING, null);
         }
-        return ResponseEntity.status(resp.getStatusCode())
-                             .headers(respHeaders)
-                             .body(resp.getBody());
+    }
+
+    private void rewriteLocationHeaderToThisProxy(String requestUri, HttpHeaders result) {
+        if (result.containsKey(HttpHeaders.LOCATION)) {
+            final String ownUri = requestUri.substring(0, requestUri.indexOf(contextPath) + contextPath.length());
+            assert result.getLocation() != null;
+            final String loc = result.getLocation().toString();
+            result.setLocation(URI.create(loc.replace(config.url(), ownUri)));
+        }
     }
 }
