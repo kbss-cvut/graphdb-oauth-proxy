@@ -89,6 +89,7 @@ public class ForwardingController {
 
     private void rewriteLocationHeaderToThisProxy(String requestUri, HttpHeaders result) {
         if (result.containsKey(HttpHeaders.LOCATION)) {
+            LOG.debug("Request URL is '{}'.", requestUri);
             final String ownUri = requestUri.substring(0, requestUri.indexOf(contextPath) + contextPath.length());
             assert result.getLocation() != null;
             final String loc = result.getLocation().toString();
