@@ -45,7 +45,7 @@ public class ForwardingController {
                                             HttpMethod method, HttpServletRequest request) {
         final String requestUri = request.getRequestURI();
 
-        URI uri = URI.create(config.url());
+        URI uri = URI.create(config.getGraphdb().getUrl());
         uri = UriComponentsBuilder.fromUri(uri)
                                   .path(requestUri.substring(contextPath.length()))
                                   .query(request.getQueryString())
@@ -57,7 +57,7 @@ public class ForwardingController {
             final String headerName = headerNames.nextElement();
             headers.set(headerName, request.getHeader(headerName));
         }
-        headers.setBasicAuth(config.username(), config.password());
+        headers.setBasicAuth(config.getGraphdb().getUsername(), config.getGraphdb().getPassword());
 
         // TODO It would be better to rewrite it to directly using a HTTP client
         final HttpEntity<String> httpEntity = new HttpEntity<>(body, headers);
@@ -89,12 +89,12 @@ public class ForwardingController {
 
     private void rewriteLocationHeaderToThisProxy(String requestUri, HttpHeaders result) {
         if (result.containsKey(HttpHeaders.LOCATION)) {
-            LOG.debug("Request URL is '{}'.", requestUri);
-            final String ownUri = requestUri.substring(0, requestUri.indexOf(contextPath) + contextPath.length());
+            LOG.trace("Request URL is '{}'.", requestUri);
+            final String ownUri = config.getUrl() != null ? config.getUrl() : requestUri.substring(0, requestUri.indexOf(contextPath) + contextPath.length());
             assert result.getLocation() != null;
             final String loc = result.getLocation().toString();
-            LOG.debug("Rewriting location header value from '{}' to '{}'.", loc, loc.replace(config.url(), ownUri));
-            result.setLocation(URI.create(loc.replace(config.url(), ownUri)));
+            LOG.debug("Rewriting location header value from '{}' to '{}'.", loc, loc.replace(config.getGraphdb().getUrl(), ownUri));
+            result.setLocation(URI.create(loc.replace(config.getGraphdb().getUrl(), ownUri)));
         }
     }
 }

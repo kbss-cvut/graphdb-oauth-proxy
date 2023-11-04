@@ -21,6 +21,7 @@ The following environment variables should be used to configure the application.
 
 | Parameter                                             | Description                                                                                                   |
 |:------------------------------------------------------|:--------------------------------------------------------------------------------------------------------------|
+| `PROXY_URL`                                           | URL of the proxy itself. Used to rewrite location headers when request URLs do not match reality.             |
 | `PROXY_GRAPHDB_URL`                                   | URL of the GraphDB server. Without specifying any particular repository (that is taken from the request URL). |
 | `PROXY_GRAPHDB_USERNAME`                              | Username to authenticate GraphDB access with.                                                                 |
 | `PROXY_GRAPHDB_PASSWORD`                              | Password to authenticate GraphDB access with.                                                                 |
