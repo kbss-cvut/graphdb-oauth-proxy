@@ -2,6 +2,8 @@ package cz.cvut.kbss.ontographer.api;
 
 import cz.cvut.kbss.ontographer.config.Configuration;
 import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.io.Resource;
@@ -24,6 +26,8 @@ import java.util.Enumeration;
  */
 @RestController
 public class ForwardingController {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ForwardingController.class);
 
     @Value("${server.servlet.context-path}")
     private String contextPath;
@@ -88,6 +92,7 @@ public class ForwardingController {
             final String ownUri = requestUri.substring(0, requestUri.indexOf(contextPath) + contextPath.length());
             assert result.getLocation() != null;
             final String loc = result.getLocation().toString();
+            LOG.debug("Rewriting location header value from '{}' to '{}'.", loc, loc.replace(config.url(), ownUri));
             result.setLocation(URI.create(loc.replace(config.url(), ownUri)));
         }
     }
